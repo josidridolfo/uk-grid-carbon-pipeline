@@ -1,0 +1,23 @@
+# docker-compose.override.yml — local development overrides
+#
+# Copy to docker-compose.override.yml (gitignored) to enable hot-reload.
+# Do NOT commit the non-.example version.
+#
+# Usage:
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+#   docker compose up --build
+#
+# The override mounts app source as a read-write bind mount so code changes
+# are reflected without rebuilding the image. Gunicorn is replaced with
+# Django's runserver for auto-reload.
+
+services:
+  web:
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      # Bind-mount source for hot reload — development ONLY.
+      - .:/app
+    environment:
+      DJANGO_DEBUG: "true"

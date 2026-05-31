@@ -1,0 +1,9 @@
+{
+  "name": "energy-project-tailwind",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tailwind CSS build for energy-project.ridol.fo",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

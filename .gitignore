@@ -46,3 +46,14 @@ venv/
 
 # --- Streamlit ---
 .streamlit/secrets.toml
+
+# --- Django + web ---
+web/.env
+web/.env.*
+!web/.env.example
+web/staticfiles/
+web/static/css/tailwind.css
+web/static/tailwind/node_modules/
+web/docker-compose.override.yml
+*.sqlite3
+__pycache__/

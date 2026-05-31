@@ -1,0 +1,35 @@
+# Secrets — never bake into image
+.env
+.env.*
+
+# Dev artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Tailwind build artifacts (built inside Docker; don't need the host copy)
+static/tailwind/node_modules/
+static/css/tailwind.css
+
+# Collected static (generated inside image during build)
+staticfiles/
+
+# Dev overrides
+docker-compose.override.yml
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Git
+.git/
+.gitignore

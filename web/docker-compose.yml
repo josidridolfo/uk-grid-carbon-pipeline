@@ -1,0 +1,51 @@
+# energy-project.ridol.fo — Django + Postgres stack
+# Host nginx (infra/nginx/energy-project.ridol.fo.conf) reverse-proxies to
+# 127.0.0.1:8000. The web service does NOT bind to 0.0.0.0 — it is never
+# directly reachable from the internet.
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GIT_SHA: ${GIT_SHA:-unknown}
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      # Bind only to loopback — host nginx is the sole public-facing listener.
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # Expose collectstatic output to host for potential direct nginx serving.
+      - ./staticfiles:/app/staticfiles:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  pgdata:
+    driver: local

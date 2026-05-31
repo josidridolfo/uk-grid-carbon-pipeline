@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="space-y-10">
+
+  {# Hero #}
+  <section class="space-y-3">
+    <h1 class="text-4xl font-bold tracking-tight text-slate-900">
+      UK Grid Carbon Intelligence
+    </h1>
+    <p class="text-xl text-slate-600 max-w-2xl">
+      When is the UK electricity grid greenest, and why?
+    </p>
+    <p class="text-sm text-slate-400">
+      Data refreshed every 30 minutes from the Carbon Intensity API &middot;
+      Last checked: {{ now_utc|date:"H:i \U\T\C, j N Y" }}
+    </p>
+  </section>
+
+  {# Coming-soon feature cards — hx-get placeholders intentionally 404 until Phase 5 #}
+  <section>
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">What you'll find here</h2>
+    <ul class="grid gap-4 sm:grid-cols-3">
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 space-y-2
+                  hover:border-slate-300 transition-colors cursor-default"
+          hx-get="/partials/map-preview"
+          hx-trigger="revealed"
+          hx-swap="outerHTML"
+          hx-target="this">
+        <h3 class="font-semibold text-slate-800">Regional Choropleth</h3>
+        <p class="text-sm text-slate-500">
+          Live carbon-intensity map across all 14 UK DNO licence regions,
+          updated every half-hour from National Grid ESO open data.
+        </p>
+        <span class="inline-block text-xs bg-amber-100 text-amber-700 rounded px-2 py-0.5">
+          Coming in Phase 5
+        </span>
+      </li>
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 space-y-2
+                  hover:border-slate-300 transition-colors cursor-default"
+          hx-get="/partials/methodology-preview"
+          hx-trigger="revealed"
+          hx-swap="outerHTML"
+          hx-target="this">
+        <h3 class="font-semibold text-slate-800">Methodology</h3>
+        <p class="text-sm text-slate-500">
+          How the pipeline works: Dagster ingestion, dbt dimensional model,
+          and what &ldquo;carbon intensity&rdquo; actually measures.
+        </p>
+        <span class="inline-block text-xs bg-amber-100 text-amber-700 rounded px-2 py-0.5">
+          Coming in Phase 4
+        </span>
+      </li>
+
+      <li class="rounded-xl border border-slate-200 bg-white p-5 space-y-2
+                  hover:border-slate-300 transition-colors cursor-default"
+          hx-get="/partials/blog-preview"
+          hx-trigger="revealed"
+          hx-swap="outerHTML"
+          hx-target="this">
+        <h3 class="font-semibold text-slate-800">Blog</h3>
+        <p class="text-sm text-slate-500">
+          Write-ups on engineering decisions, UK grid behaviour,
+          and what the data reveals about renewable penetration.
+        </p>
+        <span class="inline-block text-xs bg-amber-100 text-amber-700 rounded px-2 py-0.5">
+          Coming in Phase 6
+        </span>
+      </li>
+
+    </ul>
+  </section>
+
+  {# Pipeline status placeholder — Phase 2 wires real Snowflake data #}
+  <section class="rounded-xl border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-800 mb-1">Pipeline status</h2>
+    <p class="text-sm text-slate-500">
+      Live data freshness indicators will appear here in Phase 2.
+    </p>
+  </section>
+
+</div>
+{% endblock %}

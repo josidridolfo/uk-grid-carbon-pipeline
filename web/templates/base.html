@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en-GB" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}UK Grid Carbon Intelligence{% endblock %} | energy-project</title>
+
+  {# Compiled Tailwind CSS (built in the Docker node stage) #}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-900 font-sans antialiased">
+
+  <header class="border-b border-slate-200 bg-white">
+    <div class="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
+      <a href="/" class="text-lg font-semibold tracking-tight text-slate-800">
+        UK Grid Carbon Intelligence
+      </a>
+      <nav class="flex gap-6 text-sm text-slate-600">
+        <a href="/" class="hover:text-slate-900 transition-colors">Home</a>
+        <a href="/map" class="hover:text-slate-900 transition-colors">Map</a>
+        <a href="/methodology" class="hover:text-slate-900 transition-colors">Methodology</a>
+        <a href="/blog" class="hover:text-slate-900 transition-colors">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-t border-slate-200 mt-16">
+    <div class="mx-auto max-w-5xl px-4 py-6 text-xs text-slate-500 flex flex-col sm:flex-row gap-2 justify-between">
+      <span>Data: Carbon Intensity API (National Grid ESO / EDF Europe) &middot; NESO Open Data &middot; Met Office DataPoint</span>
+      <span>energy-project.ridol.fo</span>
+    </div>
+  </footer>
+
+  {# htmx 2.x — loaded from CDN. Replace with a self-hosted copy in Phase 1.5. #}
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
