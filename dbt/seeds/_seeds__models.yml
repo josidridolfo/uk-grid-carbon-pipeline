@@ -1,0 +1,68 @@
+version: 2
+
+seeds:
+  - name: dno_region_mapping
+    description: >
+      14-row reconciliation table joining the Carbon Intensity API's regional scheme
+      to the NESO GIS Boundaries GeoJSON. Necessary because the two sources use
+      different numeric IDs, three of the region names differ in wording, and the
+      API's `dnoregion` field still uses pre-2021 DNO company names (e.g. "WPD South
+      Wales" rather than the post-acquisition "NGED"). This seed is the single source
+      of truth for the cross-walk.
+    config:
+      column_types:
+        api_regionid: integer
+        api_shortname: varchar
+        api_dnoregion_legacy: varchar
+        geojson_id: integer
+        geojson_area: varchar
+        dno_code: varchar
+        dno_full_current: varchar
+        nation: varchar
+    columns:
+      - name: api_regionid
+        description: Numeric region id used by api.carbonintensity.org.uk (1-14 are DNO regions).
+        tests:
+          - unique
+          - not_null
+      - name: api_shortname
+        description: Short region name as returned by the Carbon Intensity API.
+        tests:
+          - unique
+          - not_null
+      - name: api_dnoregion_legacy
+        description: >
+          DNO company name as returned by the Carbon Intensity API. Note that the API
+          still uses pre-2021 names (e.g. WPD before its rebrand to NGED, SP Distribution
+          before SP Energy Networks). Kept here for traceability; prefer dno_full_current
+          for current-state reporting.
+      - name: geojson_id
+        description: Numeric `ID` property on the NESO DNO Licence Areas GeoJSON (10-23).
+        tests:
+          - unique
+          - not_null
+      - name: geojson_area
+        description: >
+          Canonical region name from the NESO GeoJSON. Differs from api_shortname in
+          three cases (South Scotland → "South and Central Scotland", North Wales &
+          Merseyside → "North Wales, Merseyside and Cheshire", South England → "Southern
+          England").
+        tests:
+          - unique
+          - not_null
+      - name: dno_code
+        description: Current short DNO code (UKPN, NGED, NPG, SPEN, SSEN, ENWL).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['UKPN', 'NGED', 'NPG', 'SPEN', 'SSEN', 'ENWL']
+      - name: dno_full_current
+        description: Current full DNO company name (post-2021 rebrands applied).
+        tests:
+          - not_null
+      - name: nation
+        description: Constituent nation of Great Britain that the region falls within.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['England', 'Scotland', 'Wales']

@@ -1,0 +1,15 @@
+api_regionid,api_shortname,api_dnoregion_legacy,geojson_id,geojson_area,dno_code,dno_full_current,nation
+1,North Scotland,Scottish Hydro Electric Power Distribution,17,North Scotland,SSEN,Scottish and Southern Electricity Networks,Scotland
+2,South Scotland,SP Distribution,18,South and Central Scotland,SPEN,SP Energy Networks,Scotland
+3,North West England,Electricity North West,16,North West England,ENWL,Electricity North West,England
+4,North East England,NPG North East,15,North East England,NPG,Northern Powergrid,England
+5,Yorkshire,NPG Yorkshire,23,Yorkshire,NPG,Northern Powergrid,England
+6,North Wales & Merseyside,SP Manweb,13,"North Wales, Merseyside and Cheshire",SPEN,SP Energy Networks,Wales
+7,South Wales,WPD South Wales,21,South Wales,NGED,National Grid Electricity Distribution,Wales
+8,West Midlands,WPD West Midlands,14,West Midlands,NGED,National Grid Electricity Distribution,England
+9,East Midlands,WPD East Midlands,11,East Midlands,NGED,National Grid Electricity Distribution,England
+10,East England,UKPN East,10,East England,UKPN,UK Power Networks,England
+11,South West England,WPD South West,22,South West England,NGED,National Grid Electricity Distribution,England
+12,South England,SSE South,20,Southern England,SSEN,Scottish and Southern Electricity Networks,England
+13,London,UKPN London,12,London,UKPN,UK Power Networks,England
+14,South East England,UKPN South East,19,South East England,UKPN,UK Power Networks,England

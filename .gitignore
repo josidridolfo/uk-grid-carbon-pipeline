@@ -1,0 +1,48 @@
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- DuckDB local file ---
+*.duckdb
+*.duckdb.wal
+data/*.duckdb*
+
+# --- dbt ---
+target/
+dbt_packages/
+dbt/profiles.yml
+logs/
+
+# --- Dagster ---
+$DAGSTER_HOME
+.dagster_home/
+storage/
+history/
+schedules/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.uv_cache/
+
+# --- uv ---
+# Note: uv.lock IS committed for reproducibility — explicitly NOT ignored.
+
+# --- Editors / OS ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- Streamlit ---
+.streamlit/secrets.toml

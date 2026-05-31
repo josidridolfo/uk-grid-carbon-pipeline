@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: dim_dno_region
+    description: >
+      Dimension table joining NESO DNO licence area polygons to the Carbon Intensity
+      API regional scheme. One row per DNO region (14 rows). api_regionid is the
+      surrogate key for downstream joins to Carbon Intensity data.
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal:
+          value: 14
+    columns:
+      - name: api_regionid
+        description: Carbon Intensity API numeric region identifier (1-14).
+        tests:
+          - not_null
+          - unique
+      - name: api_shortname
+        description: Short region name as used by the Carbon Intensity API.
+        tests:
+          - not_null
+      - name: api_dnoregion_legacy
+        description: Legacy DNO region label from the Carbon Intensity API.
+      - name: geojson_id
+        description: NESO GeoJSON feature ID (10-23).
+        tests:
+          - not_null
+          - unique
+      - name: geojson_area
+        description: Area name as published in the NESO GeoJSON source.
+        tests:
+          - not_null
+      - name: dno_code
+        description: Abbreviated DNO code.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['UKPN', 'NGED', 'NPG', 'SPEN', 'SSEN', 'ENWL']
+      - name: dno_full_current
+        description: Current full legal name of the Distribution Network Operator.
+        tests:
+          - not_null
+      - name: nation
+        description: Nation within Great Britain.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['England', 'Scotland', 'Wales']
+      - name: polygon
+        description: DNO licence area boundary as a Snowflake GEOGRAPHY (EPSG:4326).
+        tests:
+          - not_null
+      - name: polygon_centroid
+        description: Centroid of the DNO licence area polygon (Snowflake GEOGRAPHY point).
+
+  - name: fact_carbon_intensity_hourly
+    description: >
+      Hour-grain rollup of national UK carbon intensity. One row per hour.
+      Next iteration: replace this with a fact_grid_state model that joins
+      carbon intensity, generation mix, demand, and weather at hour grain.
+    columns:
+      - name: hour_start_utc
+        description: Start of the hour in UTC.
+        tests:
+          - not_null
+          - unique
+      - name: hour_end_utc
+        description: End of the hour in UTC.
+        tests:
+          - not_null
+      - name: mean_intensity_actual_gco2_per_kwh
+        description: Average of the two half-hour actuals within the hour.
+      - name: mean_intensity_forecast_gco2_per_kwh
+        description: Average of the two half-hour forecasts within the hour.
+      - name: half_hour_intervals_covered
+        description: Number of half-hour intervals aggregated (should be 2 for a full hour).
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 2

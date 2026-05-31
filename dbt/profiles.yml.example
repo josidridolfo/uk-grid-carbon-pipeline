@@ -1,0 +1,38 @@
+# Copy this to ~/.dbt/profiles.yml OR keep it in the repo root and pass
+# --profiles-dir . to dbt commands (the Makefile does the latter).
+#
+# Authentication: password auth is the default for ease of getting started locally.
+# For production deployments, key-pair auth is recommended — uncomment the
+# private_key_path line and comment out password. See Snowflake docs:
+# https://docs.snowflake.com/en/user-guide/key-pair-auth
+
+uk_grid:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      # Password auth (default for local development):
+      password: "{{ env_var('SNOWFLAKE_PASSWORD', '') }}"
+      # Key-pair auth (recommended for production — uncomment and set SNOWFLAKE_PRIVATE_KEY_PATH):
+      # private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TRANSFORMING') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'UK_GRID') }}"
+      schema: "{{ env_var('SNOWFLAKE_DBT_SCHEMA', 'ANALYTICS') }}"
+      threads: 4
+      client_session_keep_alive: false
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      # Production should use key-pair auth:
+      private_key_path: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PATH') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TRANSFORMING') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'UK_GRID') }}"
+      schema: "{{ env_var('SNOWFLAKE_DBT_SCHEMA', 'ANALYTICS') }}"
+      threads: 8
+      client_session_keep_alive: false

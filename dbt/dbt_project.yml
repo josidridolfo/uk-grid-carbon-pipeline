@@ -1,0 +1,39 @@
+name: 'uk_grid'
+version: '0.1.0'
+config-version: 2
+
+profile: 'uk_grid'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  uk_grid:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  uk_grid:
+    +schema: seeds
+
+# Snapshot the freshness of each source.
+sources:
+  uk_grid:
+    +freshness:
+      warn_after: { count: 2, period: hour }
+      error_after: { count: 12, period: hour }

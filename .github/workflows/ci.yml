@@ -1,0 +1,43 @@
+name: CI
+
+# NOTE: This workflow validates SQL, runs linting and unit tests, and parses dbt models
+# without requiring any warehouse credentials. A separate nightly-build.yml workflow
+# (TODO: not yet implemented) is expected to run the full `dbt build`, Dagster asset
+# materialisation, and dbt docs publish on a cron schedule using Snowflake secrets.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Run Python tests
+        run: uv run pytest -q
+
+      - name: dbt parse (validate SQL refs and Jinja without warehouse connection)
+        run: |
+          mkdir -p ~/.dbt
+          cp dbt/profiles.yml.example ~/.dbt/profiles.yml
+          uv run dbt deps --project-dir dbt --profiles-dir dbt
+          uv run dbt parse --project-dir dbt --profiles-dir dbt
