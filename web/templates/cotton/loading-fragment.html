@@ -1,0 +1,15 @@
+{% comment %}
+  cotton/loading-fragment.html — htmx loading state: spinner + accessible live region.
+  Drop this into any hx-indicator target or swap zone.
+
+  Props:
+    message  (str, optional) — human-readable loading message. Defaults to "Loading..."
+{% endcomment %}
+<div class="flex items-center gap-3 px-4 py-6 text-base-content/60"
+     data-testid="loading-fragment"
+     aria-live="polite"
+     aria-busy="true"
+     role="status">
+  <span class="loading loading-spinner loading-md shrink-0" aria-hidden="true"></span>
+  <span class="text-sm">{{ message|default:"Loading..." }}</span>
+</div>

@@ -1,0 +1,28 @@
+{% comment %}
+  cotton/post-meta.html — Byline row: published date + tag badges for a blog post.
+
+  Props:
+    published_at  (date, required) — post publication date
+    tags          (list[str], required) — list of tag strings; pass [] for none
+{% endcomment %}
+<div class="flex flex-wrap items-center gap-3 text-sm text-base-content/60"
+     data-testid="post-meta">
+
+  <time datetime="{{ published_at|date:'Y-m-d' }}"
+        class="font-medium text-base-content/70">
+    {{ published_at|date:"j N Y" }}
+  </time>
+
+  {% if tags %}
+  <span class="text-base-content/30" aria-hidden="true">&middot;</span>
+  <ul class="flex flex-wrap gap-2 list-none m-0 p-0"
+      aria-label="Post tags">
+    {% for tag in tags %}
+    <li>
+      <c-badge label="{{ tag }}" variant="default" />
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+</div>
