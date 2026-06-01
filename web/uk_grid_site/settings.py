@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # Third-party
     "django_htmx",
     "markdownify.apps.MarkdownifyConfig",
+    "django_cotton",
     # Local
     "apps.core.apps.CoreConfig",
     "apps.blog.apps.BlogConfig",

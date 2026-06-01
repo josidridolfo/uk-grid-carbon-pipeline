@@ -17,6 +17,7 @@ dependencies = [
     # snowflake-connector-python pinned to 3.x; 4.x has a packaging bug
     # (missing externals_utils/externals_setup.py on some wheels).
     # See parent pyproject.toml for full explanation.
+    "django-cotton>=1.5",
     "snowflake-connector-python[pandas]>=3.14,<4.0",
     "psycopg[binary]>=3.1",
     "plotly>=5.20",

@@ -4,6 +4,7 @@
   "private": true,
   "description": "Tailwind CSS build for energy-project.ridol.fo",
   "devDependencies": {
+    "daisyui": "^4",
     "tailwindcss": "^3.4.0"
   }
 }
