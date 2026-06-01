@@ -72,6 +72,9 @@ ignore = ["E501"] # line length handled by formatter
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
+markers = [
+    "integration: requires live external services (Carbon Intensity API, live Snowflake) — excluded from credential-free CI",
+]
 
 [tool.dagster]
 module_name = "uk_grid.definitions"
