@@ -73,11 +73,21 @@
     </ul>
   </section>
 
+  {# Phase 2: national intensity link #}
+  <section>
+    <nav aria-label="Feature navigation" class="flex gap-4 flex-wrap">
+      {% include "components/nav_link.html" with
+          href=intensity_url
+          label="National Carbon Intensity (past 24 h)"
+          current_path=request.path %}
+    </nav>
+  </section>
+
   {# Pipeline status placeholder — Phase 2 wires real Snowflake data #}
   <section class="rounded-xl border border-slate-200 bg-white p-6">
     <h2 class="text-lg font-semibold text-slate-800 mb-1">Pipeline status</h2>
     <p class="text-sm text-slate-500">
-      Live data freshness indicators will appear here in Phase 2.
+      Live data freshness indicators will appear here in a later phase.
     </p>
   </section>
 
