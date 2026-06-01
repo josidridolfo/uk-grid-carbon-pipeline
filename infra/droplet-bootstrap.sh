@@ -113,6 +113,10 @@ else
     echo "    docker already installed: $(docker --version)"
 fi
 
+# Ensure docker is actually running (handles the case where docker was
+# installed by a previous tenant but never started/enabled).
+systemctl is-active --quiet docker || systemctl enable --now docker
+
 # ---------------------------------------------------------------------------
 # Firewall
 # ---------------------------------------------------------------------------
@@ -136,7 +140,15 @@ if [[ -f /etc/nginx/sites-enabled/default ]]; then
 fi
 
 nginx -t
-systemctl reload nginx
+# nginx.service ships installed-but-stopped on some Ubuntu/Debian images
+# (especially droplets repurposed from other workloads). Ensure it's
+# running before attempting a reload — reload errors if the service is
+# stopped, whereas `enable --now` starts it idempotently.
+if systemctl is-active --quiet nginx; then
+    systemctl reload nginx
+else
+    systemctl enable --now nginx
+fi
 
 # ---------------------------------------------------------------------------
 # SSL via certbot (idempotent — skips if cert already exists)
