@@ -1,0 +1,36 @@
+{# components/badge.html
+   Small status pill for categorical labels.
+
+   Context variables:
+     label    (str, required)   — display text, e.g. "Very Low", "Moderate"
+     variant  (str, optional)   — one of: low | moderate | high | very-high | default
+                                  Defaults to "default" (neutral grey).
+
+   Usage:
+     {% include "components/badge.html" with label="Low" variant="low" %}
+
+   Carbon-intensity mapping convention (gCO2/kWh bands):
+     low        < 100
+     moderate   100–200
+     high       200–300
+     very-high  > 300
+#}
+
+{% with v=variant|default:"default" %}
+<span
+  data-testid="badge"
+  class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+    {% if v == 'low' %}
+      bg-emerald-100 text-emerald-800
+    {% elif v == 'moderate' %}
+      bg-yellow-100 text-yellow-800
+    {% elif v == 'high' %}
+      bg-orange-100 text-orange-800
+    {% elif v == 'very-high' %}
+      bg-red-100 text-red-800
+    {% else %}
+      bg-slate-100 text-slate-700
+    {% endif %}
+  "
+>{{ label }}</span>
+{% endwith %}
