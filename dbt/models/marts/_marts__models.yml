@@ -79,3 +79,76 @@ models:
           - dbt_utils.accepted_range:
               min_value: 1
               max_value: 2
+
+  - name: fact_regional_carbon_intensity
+    description: >
+      Half-hourly forecast carbon intensity per GB DNO licence area, joined to
+      dim_dno_region so each row carries the polygon + centroid GEOGRAPHY for
+      spatial joins and choropleth rendering. Grain: (interval, api_regionid).
+      14 regions x 48 intervals/day = 672 rows per 24h refresh.
+      The 4 aggregate regions (regionid 15-18: England, Scotland, Wales, GB)
+      are intentionally excluded by the inner join — they have no polygon.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - interval_start_utc
+            - api_regionid
+    columns:
+      - name: interval_start_utc
+        description: Start of the half-hour interval (UTC).
+        tests:
+          - not_null
+      - name: interval_end_utc
+        description: End of the half-hour interval (UTC).
+        tests:
+          - not_null
+      - name: api_regionid
+        description: DNO region identifier (1-14). FK-style join to dim_dno_region.
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 14
+      - name: region_shortname
+        description: Short region name (from dim_dno_region.api_shortname).
+        tests:
+          - not_null
+      - name: dno_code
+        description: Current DNO short code (UKPN, NGED, NPG, SPEN, SSEN, ENWL).
+        tests:
+          - not_null
+      - name: dno_full_current
+        description: Current full DNO company name.
+        tests:
+          - not_null
+      - name: nation
+        description: Constituent GB nation.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['England', 'Scotland', 'Wales']
+      - name: intensity_forecast_gco2_per_kwh
+        description: Forecast carbon intensity in gCO2/kWh (model-derived; regional endpoint).
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+              severity: warn
+      - name: intensity_actual_gco2_per_kwh
+        description: Always NULL — regional endpoint provides forecast only.
+      - name: index_band
+        description: Categorical band published by the API.
+        tests:
+          - accepted_values:
+              values: ['very low', 'low', 'moderate', 'high', 'very high']
+              severity: warn
+      - name: polygon
+        description: DNO licence area boundary as Snowflake GEOGRAPHY (EPSG:4326). Same value for every interval row of a given region.
+        tests:
+          - not_null
+      - name: polygon_centroid
+        description: Polygon centroid (Snowflake GEOGRAPHY POINT).
+      - name: fetched_at_utc
+        description: Wall-clock time the source row was ingested.
+        tests:
+          - not_null
