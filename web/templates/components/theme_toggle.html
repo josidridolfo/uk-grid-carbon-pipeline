@@ -1,4 +1,4 @@
-{# components/theme_toggle.html
+{% comment %} components/theme_toggle.html
    Color-scheme selector. Reads and writes localStorage under 'energy-project-theme'.
    Updates <html data-theme="..."> immediately — no page reload required.
 
@@ -8,7 +8,7 @@
    also be present for a FOUC-free first load.
 
    No context variables — the component is stateless from Django's perspective.
-#}
+{% endcomment %}
 
 <div class="relative inline-block" data-testid="theme-toggle">
   <label for="theme-select" class="sr-only">Color theme</label>

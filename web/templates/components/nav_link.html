@@ -1,4 +1,4 @@
-{# components/nav_link.html
+{% comment %} components/nav_link.html
    Single navigation link with active-state detection.
 
    Context variables:
@@ -15,7 +15,7 @@
      {% for link in nav_links %}
        {% include "components/nav_link.html" with href=link.href label=link.label current_path=request.path %}
      {% endfor %}
-#}
+{% endcomment %}
 
 {% if href == current_path %}
 <a href="{{ href }}"
