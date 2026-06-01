@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load markdownify %}
+
+{% block title %}Blog{% endblock %}
+
+{% block content %}
+<div class="space-y-10">
+
+  {% include "components/hero.html" with
+      headline="Blog"
+      subhead="Methodology write-ups, engineering decisions, and what the UK grid data reveals." %}
+
+  {# Post list #}
+  <section aria-label="Blog posts">
+    {% if posts %}
+    <ul class="grid gap-6 sm:grid-cols-2" role="list">
+      {% for post in posts %}
+      <li>
+        {% include "components/card.html" with
+            title=post.title
+            body=post.description
+            href="/blog/"|add:post.slug|add:"/" %}
+        <div class="mt-2 px-1">
+          {% include "components/post_meta.html" with
+              published_at=post.published_at
+              tags=post.tags %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+
+    {# Pagination #}
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-10 flex justify-center gap-4 text-sm"
+         aria-label="Pagination">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}"
+         class="rounded-lg border border-slate-200 bg-white px-4 py-2
+                text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all">
+        &larr; Newer
+      </a>
+      {% endif %}
+      <span class="px-4 py-2 text-slate-500">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}"
+         class="rounded-lg border border-slate-200 bg-white px-4 py-2
+                text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all">
+        Older &rarr;
+      </a>
+      {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <p class="text-slate-500">No posts yet. Check back soon.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}

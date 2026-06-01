@@ -46,8 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party
     "django_htmx",
+    "markdownify.apps.MarkdownifyConfig",
     # Local
     "apps.core.apps.CoreConfig",
+    "apps.blog.apps.BlogConfig",
 ]
 
 MIDDLEWARE = [
@@ -116,6 +118,73 @@ USE_TZ = True
 # Default primary key type
 # ---------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ---------------------------------------------------------------------------
+# Markdownify — safe markdown rendering for blog posts
+# Whitelist is intentionally narrow: structural HTML only.
+# Scripts, iframes, and style attributes are never allowed.
+# ---------------------------------------------------------------------------
+MARKDOWNIFY = {
+    "default": {
+        "WHITELIST_TAGS": [
+            "a",
+            "abbr",
+            "acronym",
+            "b",
+            "blockquote",
+            "br",
+            "code",
+            "em",
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "hr",
+            "i",
+            "li",
+            "ol",
+            "p",
+            "pre",
+            "strong",
+            "table",
+            "tbody",
+            "td",
+            "th",
+            "thead",
+            "tr",
+            "ul",
+        ],
+        "WHITELIST_ATTRS": {
+            "a": ["href", "title", "rel"],
+            "abbr": ["title"],
+            "acronym": ["title"],
+            "td": ["align"],
+            "th": ["align"],
+            "code": ["class"],         # codehilite adds language classes
+            "pre": ["class"],
+        },
+        "WHITELIST_PROTOCOLS": ["http", "https", "mailto"],
+        "BLEACH": True,
+        "MARKDOWN_EXTENSIONS": [
+            "fenced_code",
+            "tables",
+            "codehilite",
+            "toc",
+        ],
+        "MARKDOWN_EXTENSION_CONFIGS": {
+            "codehilite": {
+                "css_class": "highlight",
+                "guess_lang": False,
+            },
+            "toc": {
+                "permalink": True,
+            },
+        },
+        "STRIP": False,
+    }
+}
 
 # ---------------------------------------------------------------------------
 # Snowflake connection config
