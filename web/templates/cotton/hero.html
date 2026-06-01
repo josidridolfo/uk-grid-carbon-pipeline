@@ -1,0 +1,29 @@
+{% comment %}
+  cotton/hero.html — Landing-page hero block.
+  Maps to DaisyUI hero primitive.
+
+  Props:
+    headline   (str, required)  — main h1 heading
+    subhead    (str, required)  — supporting paragraph
+    cta_label  (str, optional)  — call-to-action button text; omit to hide CTA
+    cta_href   (str, optional)  — CTA link target; defaults to "#" if cta_label present
+{% endcomment %}
+<section class="hero py-16" data-testid="hero">
+  <div class="hero-content text-center flex-col">
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl text-base-content">
+      {{ headline }}
+    </h1>
+    <p class="mt-4 text-lg text-base-content/70 max-w-2xl">
+      {{ subhead }}
+    </p>
+    {% if cta_label %}
+    <div class="mt-8">
+      <a href="{{ cta_href|default:'#' }}"
+         class="btn btn-primary"
+         role="button">
+        {{ cta_label }}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>

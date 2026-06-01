@@ -1,0 +1,46 @@
+{% comment %}
+  cotton/theme-toggle.html — Color-scheme selector using DaisyUI theme-controller pattern.
+
+  No props — the component is stateless from Django's perspective.
+
+  DaisyUI's theme-controller select pattern handles data-theme swaps automatically.
+  The flash-prevention inline script in base.html <head> must remain present for a
+  FOUC-free first load (DaisyUI theme-controller only handles in-page changes, not
+  the initial render before CSS loads).
+
+  The inline <script> block initialises the select to the currently active theme
+  and persists changes to localStorage under 'energy-project-theme'.
+{% endcomment %}
+<div class="relative inline-block" data-testid="theme-toggle">
+  <label for="theme-select" class="sr-only">Color theme</label>
+  <select
+    id="theme-select"
+    data-choose-theme
+    class="theme-controller select select-xs select-bordered bg-base-100 text-base-content"
+    aria-label="Select color theme"
+  >
+    <option value="default">Light</option>
+    <option value="dark">Dark</option>
+    <option value="high-contrast">High Contrast</option>
+  </select>
+</div>
+
+<script>
+  (function () {
+    var select = document.getElementById('theme-select');
+    if (!select) return;
+
+    var current = document.documentElement.getAttribute('data-theme') || 'default';
+    select.value = current;
+
+    select.addEventListener('change', function () {
+      var theme = this.value;
+      document.documentElement.setAttribute('data-theme', theme);
+      try {
+        localStorage.setItem('energy-project-theme', theme);
+      } catch (e) {
+        // localStorage blocked (private browsing, storage full) — silent degrade
+      }
+    });
+  })();
+</script>

@@ -1,0 +1,30 @@
+{% comment %}
+  cotton/base-layout.html — In-body site chrome: header/nav + footer.
+  base.html is the HTML5 skeleton (doctype, <head>, CDN tags).
+  This component is available for standalone testing; in production the chrome
+  is embedded directly in base.html which uses <c-theme-toggle />.
+
+  No props — all content is static site chrome.
+{% endcomment %}
+<header class="navbar bg-base-100 border-b border-base-300 px-4" data-testid="site-header">
+  <div class="flex-1">
+    <a href="/" class="btn btn-ghost text-base font-semibold tracking-tight"
+       aria-label="UK Grid Carbon Intelligence — home">
+      UK Grid Carbon Intelligence
+    </a>
+  </div>
+  <nav class="flex gap-2 text-sm" aria-label="Main navigation">
+    <a href="/" class="btn btn-ghost btn-sm">Home</a>
+    <a href="/map" class="btn btn-ghost btn-sm">Map</a>
+    <a href="/methodology" class="btn btn-ghost btn-sm">Methodology</a>
+    <a href="/blog" class="btn btn-ghost btn-sm">Blog</a>
+  </nav>
+</header>
+
+<footer class="footer footer-center bg-base-100 border-t border-base-300 mt-16 p-6"
+        data-testid="site-footer">
+  <div class="flex flex-col sm:flex-row gap-2 justify-between w-full max-w-5xl text-xs text-base-content/50">
+    <span>Data: Carbon Intensity API (National Grid ESO / EDF Europe) &middot; NESO Open Data &middot; Met Office DataPoint</span>
+    <span>energy-project.ridol.fo</span>
+  </div>
+</footer>

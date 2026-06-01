@@ -1,0 +1,24 @@
+{% comment %}
+  cotton/nav-link.html — Navigation link with active-state detection.
+
+  Props:
+    href          (str, required) — link target, e.g. "/map"
+    label         (str, required) — visible link text
+    current_path  (str, required) — request.path from the parent view
+
+  Sets aria-current="page" and active styling when href == current_path (exact match).
+{% endcomment %}
+{% if href == current_path %}
+<a href="{{ href }}"
+   aria-current="page"
+   class="link link-hover font-semibold border-b-2 border-primary pb-0.5 text-base-content"
+   data-testid="nav-link">
+  {{ label }}
+</a>
+{% else %}
+<a href="{{ href }}"
+   class="link link-hover text-base-content/70 hover:text-base-content"
+   data-testid="nav-link">
+  {{ label }}
+</a>
+{% endif %}

@@ -3,8 +3,7 @@
 {% block title %}National Carbon Intensity{% endblock %}
 
 {% block extra_head %}
-  {# Plotly.js — loaded here so it is available when map_container.html's
-     inline script runs. Using the CDN bundle; self-host in a later phase. #}
+  {# Plotly.js — loaded here so it is available when map-container's inline script runs. #}
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
 {% endblock %}
 
@@ -12,38 +11,22 @@
 <div class="space-y-8">
 
   {# Hero — headline + current reading as subhead #}
-  {% include "components/hero.html" with
-      headline="UK National Carbon Intensity"
-      subhead=hero_subhead %}
+  <c-hero headline="UK National Carbon Intensity" subhead="{{ hero_subhead }}" />
 
-  {# Metrics row — current actual value + band badge #}
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-    {% include "components/metric_tile.html" with
-        label="Current Intensity"
-        value=current_value
-        unit="gCO₂/kWh" %}
-
-    {% include "components/metric_tile.html" with
-        label="Index Band"
-        value=current_band %}
-
+  {# Metrics row #}
+  <div class="stats stats-vertical sm:stats-horizontal shadow border border-base-300 w-full">
+    <c-metric-tile label="Current Intensity" value="{{ current_value }}" unit="gCO₂/kWh" />
+    <c-metric-tile label="Index Band" value="{{ current_band }}" />
   </div>
 
   {# Time-series chart — past 24 hours #}
   <section aria-label="Carbon intensity chart for the past 24 hours">
-    {% include "components/map_container.html" with
-        chart_id="national-intensity-chart"
-        height_class="h-[420px]"
-        figure_data=figure_json %}
+    <c-map-container chart_id="national-intensity-chart" height_class="h-[420px]" figure_data="{{ figure_json }}" />
   </section>
 
-  {# Nav link back to home — composed from nav_link component #}
+  {# Nav link back to home #}
   <nav aria-label="Section navigation" class="pt-2">
-    {% include "components/nav_link.html" with
-        href="/"
-        label="Back to Home"
-        current_path=request.path %}
+    <c-nav-link href="/" label="Back to Home" current_path="{{ request.path }}" />
   </nav>
 
 </div>

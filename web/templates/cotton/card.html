@@ -1,0 +1,39 @@
+{% comment %}
+  cotton/card.html — Reusable content card.
+  Maps to DaisyUI card primitive.
+
+  Props:
+    title      (str, required)  — card heading
+    body       (str, required)  — card body text
+    image_url  (str, optional)  — URL of header image; omit to render no <img>
+    href       (str, optional)  — wrap card in <a> with hover state; omit for static card
+
+  Slot:
+    {{ slot }}  — optional extra content rendered after the body paragraph
+{% endcomment %}
+{% if href %}
+<a href="{{ href }}"
+   class="card bg-base-100 border border-base-300 hover:border-base-content/20 hover:shadow-sm transition-all"
+   data-testid="card">
+{% else %}
+<div class="card bg-base-100 border border-base-300"
+     data-testid="card">
+{% endif %}
+
+  {% if image_url %}
+  <figure>
+    <img src="{{ image_url }}" alt="{{ title }}" class="w-full h-40 object-cover" />
+  </figure>
+  {% endif %}
+
+  <div class="card-body p-5 space-y-2">
+    <h3 class="card-title text-base font-semibold text-base-content">{{ title }}</h3>
+    <p class="text-sm text-base-content/60">{{ body }}</p>
+    {% if slot %}{{ slot }}{% endif %}
+  </div>
+
+{% if href %}
+</a>
+{% else %}
+</div>
+{% endif %}

@@ -1,0 +1,20 @@
+{% comment %}
+  cotton/metric-tile.html — Labelled numeric stat tile.
+  Maps to DaisyUI stats/stat primitive.
+
+  Props:
+    label        (str, required)  — descriptive label above the value
+    value        (str, required)  — numeric or string value to display prominently
+    unit         (str, optional)  — unit string, e.g. "gCO2/kWh", "MW", "MWh"
+    color_class  (str, optional)  — Tailwind text-color utility applied to the value
+                                    e.g. "text-green-600". Defaults to "text-base-content"
+{% endcomment %}
+<div class="stat bg-base-100 border border-base-300 rounded-xl"
+     data-testid="metric-tile">
+  <div class="stat-title text-base-content/60 uppercase tracking-wide text-xs font-medium">
+    {{ label }}
+  </div>
+  <div class="stat-value text-3xl tabular-nums {{ color_class|default:'text-base-content' }}">
+    {{ value }}{% if unit %}<span class="ml-1 text-base font-normal text-base-content/60">{{ unit }}</span>{% endif %}
+  </div>
+</div>

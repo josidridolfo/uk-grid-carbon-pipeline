@@ -1,0 +1,48 @@
+{% comment %}
+  cotton/map-container.html — Div placeholder for Plotly chart hydration.
+
+  Props:
+    chart_id      (str, required) — HTML id applied to the chart div
+    height_class  (str, optional) — Tailwind height utility, e.g. "h-[600px]".
+                                    Defaults to "h-96" (384px).
+    figure_data   (str, optional) — pre-serialised JSON figure string.
+                                    Defaults to "{}" (empty figure, safe no-op).
+
+  The component renders its own companion <script type="application/json"> data
+  block and the Plotly.newPlot() init script. Plotly.js must be loaded by the
+  caller's {% block extra_head %} before this component renders.
+{% endcomment %}
+<div class="w-full {{ height_class|default:'h-96' }} rounded-xl border border-base-300 bg-base-100 overflow-hidden"
+     id="{{ chart_id }}"
+     data-testid="map-container"
+     aria-label="Interactive chart: {{ chart_id }}"
+     role="img">
+</div>
+
+<script type="application/json" id="{{ chart_id }}-data">{{ figure_data|default:"{}" }}</script>
+
+<script>
+(function () {
+  "use strict";
+  var dataEl = document.getElementById("{{ chart_id }}-data");
+  var chartEl = document.getElementById("{{ chart_id }}");
+  if (!dataEl || !chartEl) { return; }
+  var figure;
+  try {
+    figure = JSON.parse(dataEl.textContent);
+  } catch (e) {
+    console.error("map-container: failed to parse figure JSON for #{{ chart_id }}", e);
+    return;
+  }
+  if (typeof Plotly === "undefined") {
+    console.error("map-container: Plotly is not loaded. Include plotly.js before this component.");
+    return;
+  }
+  Plotly.newPlot(
+    chartEl,
+    figure.data || [],
+    figure.layout || {},
+    { responsive: true, displaylogo: false }
+  );
+}());
+</script>
