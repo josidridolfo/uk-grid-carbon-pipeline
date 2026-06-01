@@ -8,6 +8,7 @@ decorator required.  We do need Django's template engine to be configured, which
 pytest-django handles by loading settings before any test runs.
 """
 
+import os
 import pytest
 from django.template.loader import render_to_string
 
@@ -319,3 +320,303 @@ def test_error_fragment_role_alert():
         {"message": "Error", "retry_url": "/retry"},
     )
     assert 'role="alert"' in html
+
+
+# ---------------------------------------------------------------------------
+# 7. badge.html
+# ---------------------------------------------------------------------------
+
+
+def test_badge_renders_label():
+    """badge.html must render the provided label text."""
+    html = render_to_string("components/badge.html", {"label": "Low", "variant": "low"})
+    assert "Low" in html
+
+
+def test_badge_data_testid():
+    """badge.html must include data-testid="badge"."""
+    html = render_to_string("components/badge.html", {"label": "L"})
+    assert 'data-testid="badge"' in html
+
+
+def test_badge_low_variant_classes():
+    """variant='low' must apply emerald (green) styling."""
+    html = render_to_string("components/badge.html", {"label": "Low", "variant": "low"})
+    assert "emerald" in html
+
+
+def test_badge_moderate_variant_classes():
+    """variant='moderate' must apply yellow styling."""
+    html = render_to_string("components/badge.html", {"label": "Moderate", "variant": "moderate"})
+    assert "yellow" in html
+
+
+def test_badge_high_variant_classes():
+    """variant='high' must apply orange styling."""
+    html = render_to_string("components/badge.html", {"label": "High", "variant": "high"})
+    assert "orange" in html
+
+
+def test_badge_very_high_variant_classes():
+    """variant='very-high' must apply red styling."""
+    html = render_to_string("components/badge.html", {"label": "Very High", "variant": "very-high"})
+    assert "red" in html
+
+
+def test_badge_default_variant_classes():
+    """No variant (or variant='default') must apply neutral slate styling."""
+    html = render_to_string("components/badge.html", {"label": "Unknown"})
+    assert "slate" in html
+
+
+def test_badge_is_inline_span():
+    """badge.html must use a <span> element (inline flow)."""
+    html = render_to_string("components/badge.html", {"label": "Low", "variant": "low"})
+    assert "<span" in html
+
+
+def test_badge_snapshot(snapshot):
+    """Snapshot: badge with variant=low must match stored render."""
+    html = render_to_string("components/badge.html", {"label": "Low", "variant": "low"})
+    snapshot.assert_match(html, "badge_low.html")
+
+
+# ---------------------------------------------------------------------------
+# 8. nav_link.html
+# ---------------------------------------------------------------------------
+
+
+def test_nav_link_renders_href_and_label():
+    """nav_link.html must render href and label text."""
+    html = render_to_string(
+        "components/nav_link.html",
+        {"href": "/map", "label": "Map", "current_path": "/"},
+    )
+    assert 'href="/map"' in html
+    assert "Map" in html
+
+
+def test_nav_link_data_testid():
+    """nav_link.html must include data-testid="nav-link"."""
+    html = render_to_string(
+        "components/nav_link.html",
+        {"href": "/map", "label": "Map", "current_path": "/"},
+    )
+    assert 'data-testid="nav-link"' in html
+
+
+def test_nav_link_active_aria_current():
+    """When href matches current_path, aria-current='page' must be present."""
+    html = render_to_string(
+        "components/nav_link.html",
+        {"href": "/map", "label": "Map", "current_path": "/map"},
+    )
+    assert 'aria-current="page"' in html
+
+
+def test_nav_link_inactive_no_aria_current():
+    """When href does not match current_path, aria-current must be absent."""
+    html = render_to_string(
+        "components/nav_link.html",
+        {"href": "/map", "label": "Map", "current_path": "/"},
+    )
+    assert "aria-current" not in html
+
+
+def test_nav_link_active_styling():
+    """Active link must carry a distinctive visual marker (border-b or font-semibold)."""
+    html = render_to_string(
+        "components/nav_link.html",
+        {"href": "/map", "label": "Map", "current_path": "/map"},
+    )
+    assert "font-semibold" in html or "border-b" in html
+
+
+def test_nav_link_snapshot(snapshot):
+    """Snapshot: active nav_link must match stored render."""
+    html = render_to_string(
+        "components/nav_link.html",
+        {"href": "/methodology", "label": "Methodology", "current_path": "/methodology"},
+    )
+    snapshot.assert_match(html, "nav_link_active.html")
+
+
+# ---------------------------------------------------------------------------
+# 9. hero.html
+# ---------------------------------------------------------------------------
+
+
+def test_hero_renders_headline_and_subhead():
+    """hero.html must render headline and subhead."""
+    html = render_to_string(
+        "components/hero.html",
+        {"headline": "UK Grid Carbon Intelligence", "subhead": "Real-time intensity data."},
+    )
+    assert "UK Grid Carbon Intelligence" in html
+    assert "Real-time intensity data." in html
+
+
+def test_hero_data_testid():
+    """hero.html must include data-testid="hero"."""
+    html = render_to_string(
+        "components/hero.html",
+        {"headline": "H", "subhead": "S"},
+    )
+    assert 'data-testid="hero"' in html
+
+
+def test_hero_h1_tag():
+    """hero.html must render headline inside an <h1>."""
+    html = render_to_string(
+        "components/hero.html",
+        {"headline": "My Headline", "subhead": "Subhead text."},
+    )
+    assert "<h1" in html
+    assert "My Headline" in html
+
+
+def test_hero_with_cta_renders_link():
+    """When cta_label is provided, a CTA link must be rendered."""
+    html = render_to_string(
+        "components/hero.html",
+        {"headline": "H", "subhead": "S", "cta_label": "Explore the map", "cta_href": "/map"},
+    )
+    assert "Explore the map" in html
+    assert 'href="/map"' in html
+
+
+def test_hero_without_cta_no_button():
+    """When cta_label is absent, no CTA element should be rendered."""
+    html = render_to_string(
+        "components/hero.html",
+        {"headline": "H", "subhead": "S"},
+    )
+    assert "button" not in html.lower() or 'role="button"' not in html
+
+
+def test_hero_cta_default_href():
+    """When cta_label is provided but cta_href is absent, href defaults to '#'."""
+    html = render_to_string(
+        "components/hero.html",
+        {"headline": "H", "subhead": "S", "cta_label": "Go"},
+    )
+    assert 'href="#"' in html
+
+
+def test_hero_snapshot(snapshot):
+    """Snapshot: hero with CTA must match stored render."""
+    html = render_to_string(
+        "components/hero.html",
+        {
+            "headline": "UK Grid Carbon Intelligence",
+            "subhead": "Real-time intensity data.",
+            "cta_label": "Explore the map",
+            "cta_href": "/map",
+        },
+    )
+    snapshot.assert_match(html, "hero_with_cta.html")
+
+
+# ---------------------------------------------------------------------------
+# 10. theme_toggle.html
+# ---------------------------------------------------------------------------
+
+
+def test_theme_toggle_data_testid():
+    """theme_toggle.html must include data-testid="theme-toggle"."""
+    html = render_to_string("components/theme_toggle.html")
+    assert 'data-testid="theme-toggle"' in html
+
+
+def test_theme_toggle_has_three_options():
+    """theme_toggle.html must render exactly three <option> elements."""
+    html = render_to_string("components/theme_toggle.html")
+    assert html.count("<option") == 3
+
+
+def test_theme_toggle_light_option():
+    """theme_toggle.html must include a 'Light' / 'default' option."""
+    html = render_to_string("components/theme_toggle.html")
+    assert 'value="default"' in html
+
+
+def test_theme_toggle_dark_option():
+    """theme_toggle.html must include a 'Dark' option."""
+    html = render_to_string("components/theme_toggle.html")
+    assert 'value="dark"' in html
+
+
+def test_theme_toggle_high_contrast_option():
+    """theme_toggle.html must include a 'High Contrast' option."""
+    html = render_to_string("components/theme_toggle.html")
+    assert 'value="high-contrast"' in html
+
+
+def test_theme_toggle_aria_label():
+    """theme_toggle.html select must carry an aria-label for accessibility."""
+    html = render_to_string("components/theme_toggle.html")
+    assert "aria-label" in html
+
+
+def test_theme_toggle_sr_only_label():
+    """theme_toggle.html must include a visually-hidden label for screen readers."""
+    html = render_to_string("components/theme_toggle.html")
+    assert "sr-only" in html
+
+
+def test_theme_toggle_local_storage_key_in_script():
+    """The inline script must reference the localStorage key 'energy-project-theme'."""
+    html = render_to_string("components/theme_toggle.html")
+    assert "energy-project-theme" in html
+
+
+def test_theme_toggle_snapshot(snapshot):
+    """Snapshot: theme_toggle render must match stored snapshot."""
+    html = render_to_string("components/theme_toggle.html")
+    snapshot.assert_match(html, "theme_toggle.html")
+
+
+# ---------------------------------------------------------------------------
+# Theme CSS variables — structural test
+# ---------------------------------------------------------------------------
+
+CSS_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "..", "..", "static", "tailwind", "input.css",
+)
+
+
+def test_css_has_default_theme_block():
+    """input.css must contain a [data-theme='default'] or :root block."""
+    with open(CSS_PATH) as f:
+        css = f.read()
+    assert "[data-theme=" in css or ":root" in css
+
+
+def test_css_has_dark_theme_block():
+    """input.css must contain a [data-theme='dark'] block."""
+    with open(CSS_PATH) as f:
+        css = f.read()
+    assert '[data-theme="dark"]' in css
+
+
+def test_css_has_high_contrast_theme_block():
+    """input.css must contain a [data-theme='high-contrast'] block."""
+    with open(CSS_PATH) as f:
+        css = f.read()
+    assert '[data-theme="high-contrast"]' in css
+
+
+def test_css_defines_all_six_tokens():
+    """input.css must define all six required CSS custom properties."""
+    with open(CSS_PATH) as f:
+        css = f.read()
+    for token in [
+        "--color-bg",
+        "--color-fg",
+        "--color-accent",
+        "--color-muted",
+        "--color-card-bg",
+        "--color-border",
+    ]:
+        assert token in css, f"Missing CSS token: {token}"
