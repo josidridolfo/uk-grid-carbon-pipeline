@@ -66,3 +66,55 @@ models:
         description: Wall-clock UTC time the row was ingested.
         tests:
           - not_null
+
+  - name: stg_carbon_intensity__regional
+    description: >
+      Per-region half-hourly carbon intensity. Source: Carbon Intensity API's
+      /regional/intensity/{from}/{to} endpoint. Grain: (interval, region_id).
+      View materialisation. 18 regions × N intervals per refresh.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - interval_start_utc
+            - region_id
+    columns:
+      - name: interval_start_utc
+        description: Start of the half-hour interval (UTC).
+        tests:
+          - not_null
+      - name: interval_end_utc
+        description: End of the half-hour interval (UTC).
+        tests:
+          - not_null
+      - name: region_id
+        description: API regionid (1-14 DNO areas, 15-17 nation aggregates, 18 GB-total).
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 18
+      - name: region_shortname
+        description: Short region label from the API (e.g. "North Scotland", "GB").
+        tests:
+          - not_null
+      - name: region_dnoregion
+        description: Pre-2021 DNO company name from the API. dno_full_current in dim_dno_region holds the current name.
+      - name: intensity_forecast_gco2_per_kwh
+        description: Forecast carbon intensity in gCO2/kWh (model-derived).
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000
+              severity: warn
+      - name: intensity_actual_gco2_per_kwh
+        description: Always NULL — regional endpoint provides forecast only. Kept for schema parity with stg_carbon_intensity__national.
+      - name: index_band
+        description: Categorical band published by the API.
+        tests:
+          - accepted_values:
+              values: ['very low', 'low', 'moderate', 'high', 'very high']
+              severity: warn
+      - name: fetched_at_utc
+        description: Wall-clock UTC time the row was ingested.
+        tests:
+          - not_null

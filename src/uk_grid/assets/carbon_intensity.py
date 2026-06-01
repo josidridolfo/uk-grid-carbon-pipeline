@@ -71,6 +71,61 @@ def _parse_intensity_rows(
     )
 
 
+def _parse_regional_rows(
+    intervals: list[dict],
+    *,
+    fetched_at_utc: datetime,
+) -> pd.DataFrame:
+    """Parse Carbon Intensity API's ``/regional/intensity/{from}/{to}`` response.
+
+    Pure function — deterministic given identical input. The API nests regions
+    inside each interval; this parser flattens to one row per (interval x region).
+
+    Grain: ``(interval_start_utc, region_id)`` — 18 regions x N intervals.
+
+    Args:
+        intervals: List of interval dicts from the API's ``"data"`` key. Each
+            has ``"from"``/``"to"`` ISO timestamps and a ``"regions"`` list with
+            one dict per region: ``{"regionid": int, "shortname": str,
+            "dnoregion": str, "intensity": {"forecast": float, "index": str},
+            "generationmix": [...]}``. The ``"intensity"`` sub-dict may omit
+            keys or be missing entirely for malformed rows. The regional
+            endpoint does NOT return ``"actual"`` (model-only intensity) —
+            the parser still emits an ``intensity_actual_gco2_per_kwh``
+            column for schema parity with the national parser, always NaN.
+        fetched_at_utc: Wall-clock ingestion timestamp, broadcast across all
+            output rows so the entire batch shares one ``_fetched_at_utc``.
+
+    Returns:
+        DataFrame with columns: ``interval_start_utc``, ``interval_end_utc``,
+        ``region_id``, ``region_shortname``, ``region_dnoregion``,
+        ``intensity_forecast_gco2_per_kwh``, ``intensity_actual_gco2_per_kwh``,
+        ``index_band``, ``_fetched_at_utc``. The ``generationmix`` field is
+        intentionally NOT extracted here — it's a nested list that will be
+        modelled as its own asset/mart in a future phase.
+    """
+    rows: list[dict] = []
+    for interval in intervals:
+        interval_start = pd.to_datetime(interval["from"], utc=True)
+        interval_end = pd.to_datetime(interval["to"], utc=True)
+        for region in interval.get("regions", []):
+            intensity = region.get("intensity", {}) or {}
+            rows.append(
+                {
+                    "interval_start_utc": interval_start,
+                    "interval_end_utc": interval_end,
+                    "region_id": region.get("regionid"),
+                    "region_shortname": region.get("shortname"),
+                    "region_dnoregion": region.get("dnoregion"),
+                    "intensity_forecast_gco2_per_kwh": intensity.get("forecast"),
+                    "intensity_actual_gco2_per_kwh": intensity.get("actual"),
+                    "index_band": intensity.get("index"),
+                    "_fetched_at_utc": fetched_at_utc,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
 @dg.asset(
     description=(
         "Half-hourly UK national carbon intensity actuals (gCO2/kWh) for the trailing "
@@ -113,13 +168,44 @@ def raw_carbon_intensity__national(context: AssetExecutionContext) -> pd.DataFra
 
 @dg.asset(
     description=(
-        "Per-region half-hourly carbon intensity for the 14 GB DNO regions. "
-        "TODO: implement; see https://api.carbonintensity.org.uk/regional"
+        "Half-hourly UK carbon intensity for the trailing 24h, broken out by the 18 "
+        "regions the Carbon Intensity API exposes (14 DNO licence areas + 3 nation "
+        "aggregates + GB total). Grain: (interval, region). The regional endpoint "
+        "provides forecast-only intensity (model-derived); `actual` is always NaN here, "
+        "in contrast to the national endpoint."
     ),
     group_name="carbon_intensity",
+    metadata={"source": "https://api.carbonintensity.org.uk/regional/intensity"},
     compute_kind="python",
 )
 def raw_carbon_intensity__regional(context: AssetExecutionContext) -> pd.DataFrame:
-    """Pull regional intensity. TODO: implement once national loop is verified end-to-end."""
-    context.log.warning("raw_carbon_intensity__regional is a stub — returning empty frame.")
-    return pd.DataFrame()
+    """Pull the last 24 hours of regional half-hour intensity from the Carbon Intensity API."""
+    end = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    start = end - timedelta(hours=24)
+    url = (
+        f"{API_BASE}/regional/intensity/"
+        f"{start.strftime('%Y-%m-%dT%H:%MZ')}/"
+        f"{end.strftime('%Y-%m-%dT%H:%MZ')}"
+    )
+    payload = _get(url)
+    intervals = payload["data"]
+
+    df = _parse_regional_rows(intervals, fetched_at_utc=datetime.now(UTC))
+
+    context.log.info(
+        f"Fetched {len(df)} (interval x region) rows "
+        f"from {start.isoformat()} to {end.isoformat()}"
+    )
+    context.add_output_metadata(
+        {
+            "row_count": len(df),
+            "interval_count": len(intervals),
+            "region_count": (df["region_id"].nunique() if len(df) else 0),
+            "min_interval_start": str(df["interval_start_utc"].min()) if len(df) else None,
+            "max_interval_start": str(df["interval_start_utc"].max()) if len(df) else None,
+            "mean_intensity_forecast": (
+                float(df["intensity_forecast_gco2_per_kwh"].mean()) if len(df) else None
+            ),
+        }
+    )
+    return df
