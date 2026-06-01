@@ -176,5 +176,5 @@ systemctl status certbot.timer --no-pager | head -3
 
 echo
 echo "✓ Bootstrap complete."
-echo "  Next: copy/clone the repo to /opt/energy-project, populate /opt/energy-project/.env,"
+echo "  Next: copy/clone the repo to /opt/energy-project, populate /opt/energy-project/web/.env,"
 echo "  then run: cd /opt/energy-project && docker compose -f web/docker-compose.yml up -d --build"

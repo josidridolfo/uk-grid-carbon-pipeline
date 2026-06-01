@@ -40,7 +40,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user.
-RUN groupadd --gid 1001 app && useradd --uid 1001 --gid app --no-create-home app
+RUN groupadd --gid 1001 app \
+ && useradd --uid 1001 --gid app --create-home --home-dir /home/app --shell /bin/bash app \
+ && chown app:app /home/app
 
 WORKDIR /app
 
