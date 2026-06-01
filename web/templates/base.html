@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}UK Grid Carbon Intelligence{% endblock %} | energy-project</title>
 
+  {#
+    Theme flash-prevention: reads localStorage BEFORE the CSS link so the
+    browser paints the correct theme on the very first frame.
+    Must be the first <script> tag in <head>.
+  #}
+  <script>
+    (function () {
+      var stored = localStorage.getItem('energy-project-theme');
+      var valid = ['default', 'dark', 'high-contrast'];
+      if (stored && valid.indexOf(stored) !== -1) {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    })();
+  </script>
+
   {# Compiled Tailwind CSS (built in the Docker node stage) #}
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
@@ -24,6 +39,7 @@
         <a href="/methodology" class="hover:text-slate-900 transition-colors">Methodology</a>
         <a href="/blog" class="hover:text-slate-900 transition-colors">Blog</a>
       </nav>
+      {% include "components/theme_toggle.html" %}
     </div>
   </header>
 

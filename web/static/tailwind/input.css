@@ -1,3 +1,33 @@
+/* Theme CSS variables — set on <html data-theme="..."> by theme_toggle.html */
+
+:root,
+[data-theme="default"] {
+  --color-bg:       #f8fafc;   /* slate-50  */
+  --color-fg:       #0f172a;   /* slate-900 */
+  --color-accent:   #059669;   /* emerald-600 */
+  --color-muted:    #64748b;   /* slate-500 */
+  --color-card-bg:  #ffffff;
+  --color-border:   #e2e8f0;   /* slate-200 */
+}
+
+[data-theme="dark"] {
+  --color-bg:       #0f172a;   /* slate-900 */
+  --color-fg:       #f1f5f9;   /* slate-100 */
+  --color-accent:   #34d399;   /* emerald-400 */
+  --color-muted:    #94a3b8;   /* slate-400 */
+  --color-card-bg:  #1e293b;   /* slate-800 */
+  --color-border:   #334155;   /* slate-700 */
+}
+
+[data-theme="high-contrast"] {
+  --color-bg:       #ffffff;
+  --color-fg:       #000000;
+  --color-accent:   #005cc5;   /* blue with sufficient contrast on white */
+  --color-muted:    #000000;
+  --color-card-bg:  #ffffff;
+  --color-border:   #000000;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

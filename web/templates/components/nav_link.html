@@ -1,0 +1,33 @@
+{# components/nav_link.html
+   Single navigation link with active-state detection.
+
+   Context variables:
+     href          (str, required) — link target, e.g. "/map"
+     label         (str, required) — visible link text
+     current_path  (str, required) — request.path from the parent view
+
+   The component sets aria-current="page" and applies active styling when
+   href == current_path (exact match).  Pass request.path from the view context:
+
+     {% include "components/nav_link.html" with href="/map" label="Map" current_path=request.path %}
+
+   Or in a loop:
+     {% for link in nav_links %}
+       {% include "components/nav_link.html" with href=link.href label=link.label current_path=request.path %}
+     {% endfor %}
+#}
+
+{% if href == current_path %}
+<a href="{{ href }}"
+   aria-current="page"
+   class="text-slate-900 font-semibold hover:text-slate-900 transition-colors border-b-2 border-emerald-500 pb-0.5"
+   data-testid="nav-link">
+  {{ label }}
+</a>
+{% else %}
+<a href="{{ href }}"
+   class="text-slate-600 hover:text-slate-900 transition-colors"
+   data-testid="nav-link">
+  {{ label }}
+</a>
+{% endif %}

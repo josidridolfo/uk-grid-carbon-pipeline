@@ -1,0 +1,55 @@
+{# components/map_container.html
+   Div placeholder for Plotly chart hydration.
+
+   Context variables:
+     chart_id      (str, required) — HTML id applied to the chart div; also used to
+                                     locate the companion <script type="application/json">
+                                     data block.
+     height_class  (str, optional) — Tailwind height utility, e.g. "h-[600px]".
+                                     Defaults to "h-96" (384px).
+
+   Usage pattern (in parent template):
+     1. Render this component.
+     2. Inject Plotly figure JSON into the companion <script> block:
+          <script type="application/json" id="{{ chart_id }}-data">{{ figure_json }}</script>
+        The inline script below reads this block and calls Plotly.newPlot().
+     3. Ensure Plotly.js is loaded (via CDN or bundled) before this component renders.
+        Plotly is NOT included here — it is the caller's responsibility.
+#}
+
+<div class="w-full {{ height_class|default:'h-96' }} rounded-xl border border-slate-200 bg-white overflow-hidden"
+     id="{{ chart_id }}"
+     data-testid="map-container"
+     aria-label="Interactive chart: {{ chart_id }}"
+     role="img">
+</div>
+
+{# Companion JSON data block — parent template should populate this with figure JSON.
+   An empty object is the safe default so Plotly.newPlot doesn't crash on missing data. #}
+<script type="application/json" id="{{ chart_id }}-data">{}</script>
+
+<script>
+(function () {
+  "use strict";
+  var dataEl = document.getElementById("{{ chart_id }}-data");
+  var chartEl = document.getElementById("{{ chart_id }}");
+  if (!dataEl || !chartEl) { return; }
+  var figure;
+  try {
+    figure = JSON.parse(dataEl.textContent);
+  } catch (e) {
+    console.error("map_container: failed to parse figure JSON for #{{ chart_id }}", e);
+    return;
+  }
+  if (typeof Plotly === "undefined") {
+    console.error("map_container: Plotly is not loaded. Include plotly.js before this component.");
+    return;
+  }
+  Plotly.newPlot(
+    chartEl,
+    figure.data || [],
+    figure.layout || {},
+    { responsive: true, displaylogo: false }
+  );
+}());
+</script>
