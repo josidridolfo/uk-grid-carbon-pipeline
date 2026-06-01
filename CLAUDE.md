@@ -63,6 +63,23 @@ The Dagster asset function name **is** the Snowflake table name (via the IO mana
 ### CI
 Every PR runs: ruff lint → pytest → `dbt parse` (validates SQL refs and Jinja without a warehouse connection). A separate `nightly-build.yml` workflow (to be added) will run the full `dbt build` + asset materialisation with Snowflake secrets. The CI workflow copies `dbt/profiles.yml.example` to `~/.dbt/profiles.yml` and passes `--project-dir dbt --profiles-dir dbt` consistently.
 
+### Deployment — staging → prod pipeline
+
+Every push to `main` (every PR squash-merge) triggers `.github/workflows/deploy.yml`, which has two sequential jobs:
+
+1. **`deploy-staging`** — SSHes to the droplet, builds the staging Compose stack (`COMPOSE_PROJECT_NAME=energy-staging`, port 8001, reads `web/.env.staging`), runs migrations, waits for `/health`, then smoke-checks `/`, `/blog/`, `/intensity/national/` against `https://staging.energy-project.ridol.fo`. Any non-200 fails the job.
+2. **`deploy-prod`** — runs only if `deploy-staging` succeeded. Same flow against the prod stack (default Compose project name, port 8000, reads `web/.env`) and `https://energy-project.ridol.fo`.
+
+The `production` GitHub Environment (configurable at repo Settings → Environments → production) can have a "Required reviewers" rule added to require manual approval between staging and prod. Without that rule, prod auto-promotes from staging-success.
+
+Both stacks live on the **same droplet**. Container/volume/network isolation is via Compose project names. nginx routes by host:
+- `energy-project.ridol.fo` → `127.0.0.1:8000` (prod)
+- `staging.energy-project.ridol.fo` → `127.0.0.1:8001` (staging)
+
+Both subdomains have independent Let's Encrypt certs, both auto-renewed by `certbot.timer`.
+
+Bootstrap is split into two scripts. `infra/droplet-bootstrap.sh` provisions the host once (Docker + nginx + certbot + prod cert + prod nginx site). `infra/staging-bootstrap.sh` adds the staging nginx site + cert + stubs `web/.env.staging`. Both are idempotent.
+
 ## Constraints to keep in mind
 
 - **No incremental ingestion yet.** `raw_carbon_intensity__national` pulls the trailing 24h on every run; there is no partition definition or incremental dbt materialisation in place. If you add backfill support, you'll likely want Dagster `DailyPartitionsDefinition` + `materialized='incremental'` with `unique_key='interval_start_utc'` and a `merge` strategy — the README's "Engineering decisions" section commits to this pattern.

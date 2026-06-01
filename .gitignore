@@ -51,6 +51,7 @@ venv/
 web/.env
 web/.env.*
 !web/.env.example
+!web/.env.staging.example
 web/staticfiles/
 web/static/css/tailwind.css
 web/static/tailwind/node_modules/

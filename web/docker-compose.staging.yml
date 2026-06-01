@@ -1,0 +1,37 @@
+# ============================================================================
+# docker-compose.staging.yml — staging overlay
+# ============================================================================
+# Applied alongside docker-compose.yml to create an isolated staging stack
+# on the SAME droplet as production. Compose project name (COMPOSE_PROJECT_NAME
+# env var, set to 'energy-staging' by the deploy workflow) prefixes all
+# container/network/volume names so nothing collides with prod.
+#
+# Apply with:
+#   COMPOSE_PROJECT_NAME=energy-staging \
+#     docker compose \
+#       -f docker-compose.yml \
+#       -f docker-compose.staging.yml \
+#       up -d --build --remove-orphans
+#
+# Resulting names:
+#   - container: energy-staging-web-1, energy-staging-db-1
+#   - network:   energy-staging_default
+#   - volume:    energy-staging_pgdata
+#
+# Production runs without this overlay (defaults to project name `web`, port
+# 8000, env_file .env). Staging binds to 8001 + reads .env.staging.
+# ============================================================================
+
+services:
+  web:
+    ports:
+      # Override prod's 127.0.0.1:8000 — host nginx routes
+      # staging.energy-project.ridol.fo → 127.0.0.1:8001.
+      - "127.0.0.1:8001:8000"
+    env_file:
+      # Overrides prod's .env. Lives at web/.env.staging on the droplet.
+      - .env.staging
+
+  db:
+    env_file:
+      - .env.staging
