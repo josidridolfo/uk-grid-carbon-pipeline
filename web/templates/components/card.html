@@ -1,0 +1,36 @@
+{# components/card.html
+   Reusable card for blog post previews (Phase 6) and methodology sections.
+
+   Context variables:
+     title      (str, required) — card heading
+     body       (str, required) — card body text
+     image_url  (str, optional) — URL of header image; omit to render no <img>
+     href       (str, optional) — wrap card in <a> with hover state; omit for static card
+#}
+
+{% if href %}
+<a href="{{ href }}"
+   class="block rounded-xl border border-slate-200 bg-white overflow-hidden
+          hover:border-slate-300 hover:shadow-sm transition-all"
+   data-testid="card">
+{% else %}
+<div class="rounded-xl border border-slate-200 bg-white overflow-hidden"
+     data-testid="card">
+{% endif %}
+
+  {% if image_url %}
+  <img src="{{ image_url }}"
+       alt="{{ title }}"
+       class="w-full h-40 object-cover" />
+  {% endif %}
+
+  <div class="p-5 space-y-2">
+    <h3 class="font-semibold text-slate-800">{{ title }}</h3>
+    <p class="text-sm text-slate-500">{{ body }}</p>
+  </div>
+
+{% if href %}
+</a>
+{% else %}
+</div>
+{% endif %}
