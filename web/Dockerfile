@@ -63,6 +63,7 @@ COPY uk_grid_site/ ./uk_grid_site/
 COPY apps/ ./apps/
 COPY templates/ ./templates/
 COPY static/ ./static/
+COPY content/ ./content/
 
 # collectstatic writes into staticfiles/ — this dir must be writable by app user.
 RUN mkdir -p staticfiles && chown -R app:app /app

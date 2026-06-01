@@ -1,4 +1,4 @@
-{# components/badge.html
+{% comment %} components/badge.html
    Small status pill for categorical labels.
 
    Context variables:
@@ -14,7 +14,7 @@
      moderate   100–200
      high       200–300
      very-high  > 300
-#}
+{% endcomment %}
 
 {% with v=variant|default:"default" %}
 <span

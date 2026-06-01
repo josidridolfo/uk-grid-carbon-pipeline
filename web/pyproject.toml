@@ -13,6 +13,7 @@ dependencies = [
     "django-environ>=0.11",
     "django-htmx>=1.17",
     "django-markdownify>=0.9",
+    "python-frontmatter>=1.1",
     # snowflake-connector-python pinned to 3.x; 4.x has a packaging bug
     # (missing externals_utils/externals_setup.py on some wheels).
     # See parent pyproject.toml for full explanation.
