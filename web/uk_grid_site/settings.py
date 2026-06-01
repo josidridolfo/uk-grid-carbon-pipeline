@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Local
     "apps.core.apps.CoreConfig",
     "apps.blog.apps.BlogConfig",
+    "apps.intensity.apps.IntensityConfig",
 ]
 
 MIDDLEWARE = [
