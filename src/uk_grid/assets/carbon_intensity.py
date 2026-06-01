@@ -30,6 +30,47 @@ def _get(url: str) -> dict:
     return response.json()
 
 
+def _parse_intensity_rows(
+    rows: list[dict],
+    *,
+    fetched_at_utc: datetime,
+) -> pd.DataFrame:
+    """Parse Carbon Intensity API response rows into a typed DataFrame.
+
+    Pure function — deterministic given identical input. Network I/O and
+    wall-clock reads live in the ``@dg.asset``-decorated wrapper above so this
+    helper can be unit-tested in isolation (see tests/test_carbon_intensity_parse.py).
+
+    Args:
+        rows: List of dicts from the API's ``"data"`` key. Each row has
+            ``"from"``/``"to"`` ISO timestamps and an ``"intensity"`` sub-dict
+            with ``"forecast"``/``"actual"``/``"index"`` keys — any of which
+            may be missing or ``None`` (e.g. ``actual`` is ``None`` for
+            day-ahead intervals that have not yet settled).
+        fetched_at_utc: Wall-clock ingestion timestamp, broadcast across all
+            rows so the whole batch shares one ``_fetched_at_utc`` value.
+
+    Returns:
+        DataFrame with one row per input row and columns: ``interval_start_utc``,
+        ``interval_end_utc``, ``intensity_forecast_gco2_per_kwh``,
+        ``intensity_actual_gco2_per_kwh``, ``index_band``, ``_fetched_at_utc``.
+        Empty list in → empty DataFrame out.
+    """
+    return pd.DataFrame(
+        [
+            {
+                "interval_start_utc": pd.to_datetime(r["from"], utc=True),
+                "interval_end_utc": pd.to_datetime(r["to"], utc=True),
+                "intensity_forecast_gco2_per_kwh": r.get("intensity", {}).get("forecast"),
+                "intensity_actual_gco2_per_kwh": r.get("intensity", {}).get("actual"),
+                "index_band": r.get("intensity", {}).get("index"),
+                "_fetched_at_utc": fetched_at_utc,
+            }
+            for r in rows
+        ]
+    )
+
+
 @dg.asset(
     description=(
         "Half-hourly UK national carbon intensity actuals (gCO2/kWh) for the trailing "
@@ -51,19 +92,7 @@ def raw_carbon_intensity__national(context: AssetExecutionContext) -> pd.DataFra
     payload = _get(url)
     rows = payload["data"]
 
-    df = pd.DataFrame(
-        [
-            {
-                "interval_start_utc": pd.to_datetime(r["from"], utc=True),
-                "interval_end_utc": pd.to_datetime(r["to"], utc=True),
-                "intensity_forecast_gco2_per_kwh": r["intensity"].get("forecast"),
-                "intensity_actual_gco2_per_kwh": r["intensity"].get("actual"),
-                "index_band": r["intensity"].get("index"),
-                "_fetched_at_utc": datetime.now(UTC),
-            }
-            for r in rows
-        ]
-    )
+    df = _parse_intensity_rows(rows, fetched_at_utc=datetime.now(UTC))
 
     context.log.info(
         f"Fetched {len(df)} half-hourly intervals "
