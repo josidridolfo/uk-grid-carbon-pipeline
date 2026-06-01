@@ -5,9 +5,7 @@
 {% block content %}
 <div class="space-y-10">
 
-  {% include "components/hero.html" with
-      headline="Blog"
-      subhead="Methodology write-ups, engineering decisions, and what the UK grid data reveals." %}
+  <c-hero headline="Blog" subhead="Methodology write-ups, engineering decisions, and what the UK grid data reveals." />
 
   {# Post list #}
   <section aria-label="Blog posts">
@@ -15,14 +13,9 @@
     <ul class="grid gap-6 sm:grid-cols-2" role="list">
       {% for post in posts %}
       <li>
-        {% include "components/card.html" with
-            title=post.title
-            body=post.description
-            href="/blog/"|add:post.slug|add:"/" %}
+        <c-card title="{{ post.title }}" body="{{ post.description }}" href="/blog/{{ post.slug }}/" />
         <div class="mt-2 px-1">
-          {% include "components/post_meta.html" with
-              published_at=post.published_at
-              tags=post.tags %}
+          <c-post-meta published_at="{{ post.published_at }}" :tags="post.tags" />
         </div>
       </li>
       {% endfor %}
@@ -34,18 +27,16 @@
          aria-label="Pagination">
       {% if page_obj.has_previous %}
       <a href="?page={{ page_obj.previous_page_number }}"
-         class="rounded-lg border border-slate-200 bg-white px-4 py-2
-                text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all">
+         class="btn btn-sm btn-outline">
         &larr; Newer
       </a>
       {% endif %}
-      <span class="px-4 py-2 text-slate-500">
+      <span class="flex items-center px-4 text-base-content/60">
         Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
       </span>
       {% if page_obj.has_next %}
       <a href="?page={{ page_obj.next_page_number }}"
-         class="rounded-lg border border-slate-200 bg-white px-4 py-2
-                text-slate-700 hover:border-slate-300 hover:shadow-sm transition-all">
+         class="btn btn-sm btn-outline">
         Older &rarr;
       </a>
       {% endif %}
@@ -53,7 +44,7 @@
     {% endif %}
 
     {% else %}
-    <p class="text-slate-500">No posts yet. Check back soon.</p>
+    <p class="text-base-content/60">No posts yet. Check back soon.</p>
     {% endif %}
   </section>
 
