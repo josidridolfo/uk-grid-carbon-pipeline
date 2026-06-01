@@ -57,3 +57,6 @@ web/static/tailwind/node_modules/
 web/docker-compose.override.yml
 *.sqlite3
 __pycache__/
+
+# --- Claude agent memory (per-session state, not project artifacts) ---
+.claude/agent-memory/
