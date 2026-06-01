@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}UK Grid Carbon Intelligence{% endblock %} | energy-project</title>
 
-  {#
+  {% comment %}
     Theme flash-prevention: reads localStorage BEFORE the CSS link so the
     browser paints the correct theme on the very first frame.
     Must be the first <script> tag in <head>.
-  #}
+  {% endcomment %}
   <script>
     (function () {
       var stored = localStorage.getItem('energy-project-theme');
