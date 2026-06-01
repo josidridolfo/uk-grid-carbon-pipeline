@@ -24,7 +24,7 @@ jobs:
           enable-cache: true
 
       - name: Set up Python
-        run: uv python install 3.12
+        run: uv python install 3.13
 
       - name: Install dependencies
         run: uv sync --all-extras
@@ -33,11 +33,21 @@ jobs:
         run: uv run ruff check src tests
 
       - name: Run Python tests
-        run: uv run pytest -q
+        run: uv run pytest -q -m "not integration"
 
       - name: dbt parse (validate SQL refs and Jinja without warehouse connection)
+        # Copy profiles.yml into dbt/ so it matches --profiles-dir dbt.
+        # Stub Snowflake env vars so parse succeeds without secrets — the values
+        # are not used at parse time (only at compile/run against the warehouse).
+        env:
+          SNOWFLAKE_ACCOUNT: stub-account
+          SNOWFLAKE_USER: stub-user
+          SNOWFLAKE_PASSWORD: stub-password
+          SNOWFLAKE_ROLE: TRANSFORMER
+          SNOWFLAKE_WAREHOUSE: ENERGY_WH
+          SNOWFLAKE_DATABASE: UK_GRID
+          SNOWFLAKE_DBT_SCHEMA: ANALYTICS
         run: |
-          mkdir -p ~/.dbt
-          cp dbt/profiles.yml.example ~/.dbt/profiles.yml
+          cp dbt/profiles.yml.example dbt/profiles.yml
           uv run dbt deps --project-dir dbt --profiles-dir dbt
           uv run dbt parse --project-dir dbt --profiles-dir dbt
